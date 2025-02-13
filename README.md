@@ -22,7 +22,6 @@ MySQL 또는 PostgreSQL을 사용하여 여러 단계의 승인 및 반려가 �
 1. 필요한 테이블을 최소한으로 정의하라.
 2. 특정 사용자가 처리해야 할 결재 건을 나열하는 query를 작성하라.
 
-테이블 -> User, Approval, ApprovalStatus, ApprovalHistory
 
 #### 테이블
 - users: 사용자 정보
@@ -33,7 +32,7 @@ MySQL 또는 PostgreSQL을 사용하여 여러 단계의 승인 및 반려가 �
   - id, document_id, approver_id, order, is_required, created_at
 - approval_histories: 결재 이력
   - id, document_id, approver_id, comment, status, created_at
-  -
+
 ##### users
 - id: SERIAL, PRIMARY KEY
 - name: VARCHAR(128)
