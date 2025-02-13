@@ -25,7 +25,50 @@ MySQL 또는 PostgreSQL을 사용하여 여러 단계의 승인 및 반려가 �
 테이블 -> User, Approval, ApprovalStatus, ApprovalHistory
 
 #### 테이블
-- User: 사용자 정보를 저장하는 테이블
-- Approval: 결재 정보 저장
-- ApprovalStatus: 결재 상태의 종류를 저장한다. 동적 추가를 위해 Approval과 별도로 분리
-- ApprovalHistory: 결재 이력을 저장한다.
+- users: 사용자 정보
+  - id, name, department, position
+- documents: 결재 받아야 하는 문서 정보
+  - id, title, content, creator_id, created_at, updated_at
+- approval_lines: 결재 라인
+  - id, document_id, approver_id, order, is_required, created_at
+- approval_histories: 결재 이력
+  - id, document_id, approver_id, comment, status, created_at
+  -
+##### users
+- id: SERIAL, PRIMARY KEY
+- name: VARCHAR(128)
+- department: VARCHAR(128)
+- position: VARCHAR(128)
+
+##### documents
+- id: SERIAL, PRIMARY KEY
+- title: VARCHAR(255)
+- content: TEXT
+- creator_id: INTEGER, FOREIGN KEY(users.id)
+- created_at: TIMESTAMP
+- updated_at: TIMESTAMP
+
+##### approval_lines
+- id: SERIAL, PRIMARY KEY
+- document_id: INTEGER, FOREIGN KEY(documents.id)
+- approver_id: INTEGER, FOREIGN KEY(users.id)
+- sequence: SMALLINT
+- created_at: TIMESTAMP
+- UNIQUE(document_id, approver_id)
+- UNIQUE(document_id, sequence)
+
+##### approval_histories
+- id: SERIAL, PRIMARY KEY
+- document_id: INTEGER, FOREIGN KEY(documents.id)
+- approver_id: INTEGER, FOREIGN KEY(users.id)
+- comment: TEXT
+- status: SMALLINT (0: approved, 1: rejected)
+- created_at: TIMESTAMP
+
+- document 의 현재 처리 상태는 approval_lines의 최신 기록에 따라 판단합니다.
+  - 없으면 pending, status = 0 이면 approved, status = 1 이면 rejected
+
+#### Query
+- 내가 결재자인 문서 중
+  - 내가 아직 결재하지 않은 문서
+  - 이전 결재자가 승인했거나 내가 첫번째 결재자인 문서
