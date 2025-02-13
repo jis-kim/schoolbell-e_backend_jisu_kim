@@ -69,6 +69,10 @@ MySQL 또는 PostgreSQL을 사용하여 여러 단계의 승인 및 반려가 �
   - 없으면 pending, status = 0 이면 approved, status = 1 이면 rejected
 
 #### Query
-- 내가 결재자인 문서 중
-  - 내가 아직 결재하지 않은 문서
-  - 이전 결재자가 승인했거나 내가 첫번째 결재자인 문서
+- documents 테이블과 approval_lines 테이블을 JOIN하여 결재 라인에 포함된 문서를 조회합니다.
+= LEFT JOIN을 사용하여 approval_histories 테이블에서 현재 사용자의 결재 이력과 이전 결재자의 결재 결과를 확인합니다.
+- WHERE 절을 사용하여 다음과 같은 조건을 만족하는 문서를 필터링합니다.
+    - 현재 사용자가 결재자인 문서 (al.approver_id = :approver_id)
+    - 아직 결재하지 않은 문서 (my_approval.id IS NULL)
+    - 첫 번째 결재자이거나 이전 결재자가 승인한 문서 (al.sequence = 1 OR prev_approval.status = 0)
+- ORDER BY 절을 사용하여 문서 생성일시 기준으로 내림차순 정렬합니다.
